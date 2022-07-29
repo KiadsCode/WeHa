@@ -1,1 +1,3 @@
-sln/
+build/
+.vscode/
+src/vc60.pdb
