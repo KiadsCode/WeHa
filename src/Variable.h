@@ -39,7 +39,7 @@ Variable::Variable(std::string NAME, std::string TYPE, std::string VALUE)
     }
     if (type == typeBool)
     {
-        if (valueS == "true" || valueS == "false")
+        if (valueS == boolVarA || valueS == boolVarB)
         {
             valueB = valueS;
         }
