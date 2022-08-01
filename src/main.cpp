@@ -96,8 +96,6 @@ Function FindFunc(std::string name) {
 
 void Parser() {
     string Code = ScriptCode[LineNum];
-    if (Code[0] == commentKeySign || Code[0] == '\0')
-        return;
     ParseMV(Code);
 }
 
@@ -266,6 +264,8 @@ void ParseVarOut(std::string& code){
     }
 }
 void ParseMV(std::string& Code){
+    if (Code[0] == commentKeySign || Code[0] == '\0')
+        return;
     if (ParseFunction(Code))
         return;
     ParseStartFunc(Code);
