@@ -26,9 +26,9 @@ void Parser(); // Main Parser
 
 // Other Parsers
 void ParseVarOut(std::string& code);
-void ParseVarIn(std::string& code);
 void ParsePrint(std::string& code);
 void ParseStartFunc(std::string& code);
+void ParseMV(std::string& Code);
 void ParseInput(std::string& code);
 bool ParseFunction(std::string& code);
 void ParseAssignVar(std::string& code);

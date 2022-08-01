@@ -72,6 +72,16 @@ Variable FindVar(std::string name){
     }
     return Variables.at(VARNUM);
 }
+int FindVarNUM(std::string name){
+    int VARNUM = 0;
+    for (size_t i = 0; i < Variables.size(); ++i)
+    {
+        if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0) {
+            VARNUM = i;
+        }   
+    }
+    return VARNUM;
+}
 
 Function FindFunc(std::string name) {
     int VARNUM = 0;
@@ -88,15 +98,7 @@ void Parser() {
     string Code = ScriptCode[LineNum];
     if (Code[0] == commentKeySign || Code[0] == '\0')
         return;
-    if (ParseFunction(Code))
-        return;
-    ParseStartFunc(Code);
-    ParseNewVariable(Code);
-    ParseAssignVar(Code);
-    ParseVarOut(Code);
-    ParseVarIn(Code);
-    ParsePrint(Code);
-    ParseInput(Code);
+    ParseMV(Code);
 }
 
 
@@ -137,6 +139,95 @@ bool ParseFunction(std::string& code) {
 }
 void ParseAssignVar(std::string& code)
 {
+    string name = "";
+    string value = "";
+    string validCode = "";
+    bool VALID = false;
+
+    for (size_t i = 0; i < code.length(); i++)
+    {
+        if (validCode != letKeyWord)
+            validCode += code[i];
+    }
+
+    if (validCode != letKeyWord)
+        return;
+    
+    for (size_t i = letKeyWord.length() + 1; i < code.length() - 1; i++)
+    {
+        if (code[i] != ' ' || code[i] != '=' || code[i] != ':') 
+            name += code[i];
+        if (code[i] == ':' || code[i] == ' ')
+            i = code.length() - 1;
+    }
+
+    if (name == " " || name == "")
+        return;
+    name = replace(name, ':', '\0');
+    name = replace(name, ' ', '\0');
+    int totL = letKeyWord.length() + 1 + name.length();
+    Variable var = Variables.at(FindVarNUM(name));
+    int mxh = totL;
+
+    bool InStringBrackets = false;
+    if (var.type == typeString)
+    {
+        for (size_t i = mxh; code[i] != ';'; i++)
+        {
+            if (code[i] == '\"')
+                InStringBrackets = !InStringBrackets;
+            if (code[i] != '\"' && code[i] != '=' && InStringBrackets)
+            {
+                value += code[i];
+            }
+        }
+        Variables[FindVarNUM(name)].valueS = value;
+        return;
+    }
+    
+    if (var.type == typeNumber)
+    {
+        char msc;
+        for (size_t i = mxh - 1; code[i] != ';'; i++)
+        {
+            if (code[i] == '=' || code[i] == '+' || code[i] == '-')
+                msc = code[i];
+            if (code[i] != '=' && code[i] != '+' && code[i] != '-' && code[i] != ' ')
+            {
+                value += code[i];
+            }
+        }
+        int VARNUM = 0;
+        for (size_t i = 0; i < Variables.size(); ++i)
+        {
+            if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0) {
+                VARNUM = i;
+            }
+        }
+        if (msc == '=') {
+            Variables[VARNUM].valueI = atoi(value.c_str());
+            return;
+        }
+        if (msc == '+') {
+            Variables[VARNUM].valueI += atoi(value.c_str());
+            return;
+        }
+        if (msc == '-') {
+            Variables[VARNUM].valueI -= atoi(value.c_str());
+            return;
+        }
+        return;
+    }
+    if (var.type == typeBool)
+    {
+        for (size_t i = mxh; code[i] != ';'; i++)
+        {
+            if (code[i] != '=' && code[i] != ' ')
+                value += code[i];
+        }
+        Variables[FindVarNUM(name)].valueB = value;
+        return;
+    }
 }
 void ParseVarOut(std::string& code){
     string msg = "";
@@ -174,7 +265,15 @@ void ParseVarOut(std::string& code){
         VALID = false;
     }
 }
-void ParseVarIn(std::string& code){
+void ParseMV(std::string& Code){
+    if (ParseFunction(Code))
+        return;
+    ParseStartFunc(Code);
+    ParseNewVariable(Code);
+    ParseAssignVar(Code);
+    ParseVarOut(Code);
+    ParsePrint(Code);
+    ParseInput(Code);
 }
 void ParseStartFunc(std::string& code)
 {
@@ -209,16 +308,7 @@ void ParseStartFunc(std::string& code)
         while (LineNum != FindFunc(msg).endLine)
         {
             string Code = ScriptCode[LineNum];
-            if (ParseFunction(Code))
-                return;
-            ParseStartFunc(Code);
-            ParseNewVariable(Code);
-            ParseAssignVar(Code);
-            ParseVarOut(Code);
-            ParseVarIn(Code);
-            ParsePrint(Code);
-            ParseInput(Code);
-
+            ParseMV(Code);
             LineNum++;
         }
 
