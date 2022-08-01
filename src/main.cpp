@@ -2,10 +2,17 @@
 
 const std::string scriptFormat = ".wh";
 const std::string PrintFunction = "outline";
+const std::string PrintVarFunction = "outvar";
 const std::string InputFunction = "inline";
 
+const std::string execFunction = "exec";
+const std::string funcKeyWord = "function";
+const std::string endFuncKeyWord = "end";
 const std::string varKeyWord = "var";
+const std::string letKeyWord = "let";
+const char commentKeySign = '$';
 vector<Variable> Variables;
+vector<Function> Functions;
 vector<string> ScriptCode;
 int LineNum = 0;
 
@@ -18,9 +25,9 @@ int main(int argc, char const* argv[])
         printf("Command: ");
         scanf("%s", inputChar);
         string preCommand = inputChar;
-        if (preCommand == "ex")
+        if (preCommand == ".ex")
             exit(-1);
-        if (preCommand == "parse") {
+        if (preCommand == ".load") {
             printf("Script to open: ");
             scanf("%s", inputChar);
             preCommand = inputChar;
@@ -28,6 +35,7 @@ int main(int argc, char const* argv[])
             ifstream ffrom;
             string lineCode = "";
             ffrom.open(preCommand);
+            LineNum = 0;
             if (!ffrom.is_open())
                 printf("\nfile error\n\n");
             else {
@@ -36,24 +44,188 @@ int main(int argc, char const* argv[])
                     lineCode = "";
                     std::getline(ffrom, lineCode);
                     ScriptCode.push_back(lineCode);
+                }
+                while (LineNum != ScriptCode.size())
+                {
                     Parser();
                     LineNum++;
                 }
+                
             }
             ffrom.close();
             ScriptCode.clear();
             Variables.clear();
+            Functions.clear();
             LineNum = 0;
         }
     }
     return 0;
 }
 
-void Parser(){
+Variable FindVar(std::string name){
+    int VARNUM = 0;
+    for (size_t i = 0; i < Variables.size(); ++i)
+    {
+        if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0) {
+            VARNUM = i;
+        }   
+    }
+    return Variables.at(VARNUM);
+}
+
+Function FindFunc(std::string name) {
+    int VARNUM = 0;
+    for (size_t i = 0; i < Functions.size(); ++i)
+    {
+        if (strcmp(Functions[i].name.c_str(), name.c_str()) == 0) {
+            VARNUM = i;
+        }
+    }
+    return Functions.at(VARNUM);
+}
+
+void Parser() {
     string Code = ScriptCode[LineNum];
-    //ParseNewVariable(Code);
+    if (Code[0] == commentKeySign || Code[0] == '\0')
+        return;
+    if (ParseFunction(Code))
+        return;
+    ParseStartFunc(Code);
+    ParseNewVariable(Code);
+    ParseAssignVar(Code);
+    ParseVarOut(Code);
+    ParseVarIn(Code);
     ParsePrint(Code);
     ParseInput(Code);
+}
+
+
+#pragma region PARSER
+bool ParseFunction(std::string& code) {
+    string valid = "";
+    string name = "";
+    int start = 0, endF = 1;
+    int checkL = LineNum;
+
+    for (size_t i = 0; i < code.length(); i++)
+    {
+        if (valid != funcKeyWord)
+            valid += code[i];
+    }
+
+    if (valid != funcKeyWord)
+        return false;
+    if (valid == funcKeyWord)
+        start = LineNum;
+
+    for (size_t i = funcKeyWord.length(); code[i] != '('; i++)
+    {
+        if (code[i] != ' ' && code[i] != '(')
+            name += code[i];
+    }
+    for (size_t i = start + 1; i < ScriptCode.size(); i++)
+    {
+        if (ScriptCode[i] == endFuncKeyWord.c_str()) {
+            endF = i;
+            LineNum = endF;
+            Function func(name, start, endF);
+            Functions.push_back(func);
+            return true;
+        }
+    }
+    return false;
+}
+void ParseAssignVar(std::string& code)
+{
+}
+void ParseVarOut(std::string& code){
+    string msg = "";
+    string validCode = "";
+    bool VALID = false;
+    bool inBracket = false;
+
+    for (int i = 0; i < code.length(); i++)
+    {
+        if (validCode != PrintVarFunction)
+            validCode += code[i];
+    }
+    if (validCode != PrintVarFunction)
+        return;
+    for (int i = PrintVarFunction.length(); i < code.length(); i++)
+    {
+        if (code[i] == '(')
+            inBracket = true;
+        if (code[i] != '(' && code[i] != ')' && code[i] != '"')
+            msg += code[i];
+        if (code[i] == ')') {
+            inBracket = false;
+            VALID = true;
+        }
+    }
+    if (VALID) {
+        Variable varMAIN = FindVar(msg);
+        if (varMAIN.type == typeString)
+            printf(varMAIN.valueS.c_str());
+        if (varMAIN.type == typeBool)
+            printf(varMAIN.valueB.c_str());
+        if (varMAIN.type == typeNumber)
+            printf("%d", varMAIN.valueI);
+        printf("\n");
+        VALID = false;
+    }
+}
+void ParseVarIn(std::string& code){
+}
+void ParseStartFunc(std::string& code)
+{
+    string msg = "";
+    int LineBefore = LineNum;
+    string validCode = "";
+    bool VALID = false;
+    bool inBracket = false;
+
+    for (int i = 0; i < code.length(); i++)
+    {
+        if (validCode != execFunction)
+            validCode += code[i];
+    }
+    if (validCode != execFunction)
+        return;
+    for (int i = execFunction.length(); i < code.length(); i++)
+    {
+        if (code[i] == '(')
+            inBracket = true;
+        if (code[i] != '(' && code[i] != ')' && code[i] != '"')
+            msg += code[i];
+        if (code[i] == ')') {
+            inBracket = false;
+            VALID = true;
+        }
+    }
+    if (VALID) {
+
+        LineNum = FindFunc(msg).onLine + 1;
+
+        while (LineNum != FindFunc(msg).endLine)
+        {
+            string Code = ScriptCode[LineNum];
+            if (ParseFunction(Code))
+                return;
+            ParseStartFunc(Code);
+            ParseNewVariable(Code);
+            ParseAssignVar(Code);
+            ParseVarOut(Code);
+            ParseVarIn(Code);
+            ParsePrint(Code);
+            ParseInput(Code);
+
+            LineNum++;
+        }
+
+        LineNum = LineBefore;
+
+        VALID = false;
+    }
 }
 void ParsePrint(std::string& code) {
     string msg = "";
@@ -62,9 +234,10 @@ void ParsePrint(std::string& code) {
     bool inBracket = false;
     bool inStringBrackets = false;
 
-    for (int i = 0; i < PrintFunction.length(); i++)
+    for (int i = 0; i < code.length(); i++)
     {
-        validCode += code[i];
+        if (validCode != PrintFunction)
+            validCode += code[i];
     }
     if (validCode != PrintFunction)
         return;
@@ -96,13 +269,14 @@ void ParseInput(std::string& code) {
     bool inBracket = false;
     bool inStringBrackets = false;
 
-    for (int i = 0; i < InputFunction.length(); i++)
+    for (size_t i = 0; i < code.length(); i++)
     {
-        validCode += code[i];
+        if (validCode != InputFunction)
+            validCode += code[i];
     }
     if (validCode != InputFunction)
         return;
-    for (int i = InputFunction.length(); i < code.length(); i++)
+    for (size_t i = InputFunction.length(); i < code.length(); i++)
     {
         if (code[i] == '(')
             inBracket = true;
@@ -122,7 +296,6 @@ void ParseInput(std::string& code) {
         VALID = false;
     }
 }
-
 void ParseNewVariable(std::string& code) {
     string name = "";
     string type = "";
@@ -130,9 +303,10 @@ void ParseNewVariable(std::string& code) {
     string validCode = "";
     bool VALID = false;
 
-    for (size_t i = 0; i < varKeyWord.length(); i++)
+    for (size_t i = 0; i < code.length(); i++)
     {
-        validCode += code[i];
+        if (validCode != varKeyWord)
+            validCode += code[i];
     }
 
     if (validCode != varKeyWord)
@@ -178,12 +352,11 @@ void ParseNewVariable(std::string& code) {
     {
         for (size_t i = mxh; code[i] != ';'; i++)
         {
-            if (code[i] != '=')
+            if (code[i] != '=' && code[i] != ' ')
             {
                 value += code[i];
             }
         }
-        value = replace(value, ' ', '\0');
         Variable var(name, type, value);
         Variables.push_back(var);
         return;
@@ -200,3 +373,4 @@ void ParseNewVariable(std::string& code) {
         return;
     }
 }
+#pragma endregion

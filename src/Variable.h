@@ -10,8 +10,6 @@ const std::string boolVarB = "false";
 
 class Variable
 {
-private:
-    /* data */
 public:
     int valueI = 0;
     std::string name = "";
