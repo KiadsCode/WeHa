@@ -13,7 +13,6 @@ const std::string varKeyWord = "var";
 const std::string letKeyWord = "let";
 const char commentKeySign = '$';
 vector<Variable> Variables;
-vector<IFExp> IFexps;
 vector<Function> Functions;
 vector<string> ScriptCode;
 int LineNum = 0;
