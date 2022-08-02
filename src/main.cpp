@@ -5,13 +5,15 @@ const std::string PrintFunction = "outline";
 const std::string PrintVarFunction = "outvar";
 const std::string InputFunction = "inline";
 
-const std::string execFunction = "exec";
+const char execFunction = '~';
+const std::string ifKeyWord = "if";
 const std::string funcKeyWord = "function";
 const std::string endFuncKeyWord = "end";
 const std::string varKeyWord = "var";
 const std::string letKeyWord = "let";
 const char commentKeySign = '$';
 vector<Variable> Variables;
+vector<IFExp> IFexps;
 vector<Function> Functions;
 vector<string> ScriptCode;
 int LineNum = 0;
@@ -283,23 +285,16 @@ void ParseStartFunc(std::string& code)
     bool VALID = false;
     bool inBracket = false;
 
-    for (int i = 0; i < code.length(); i++)
-    {
-        if (validCode != execFunction)
-            validCode += code[i];
-    }
-    if (validCode != execFunction)
+    if (code[0] != execFunction)
         return;
-    for (int i = execFunction.length(); i < code.length(); i++)
+    for (int i = 1; code[i] != '('; i++)
     {
-        if (code[i] == '(')
-            inBracket = true;
-        if (code[i] != '(' && code[i] != ')' && code[i] != '"')
-            msg += code[i];
-        if (code[i] == ')') {
-            inBracket = false;
+        msg += code[i];
+    }
+    for (size_t i = msg.length() + 1; i < code.length(); i++)
+    {
+        if (code[i] == ')' && code[i - 1] == '(')
             VALID = true;
-        }
     }
     if (VALID) {
 

@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <vector>
 #include "Variable.h"
+#include "IFExp.h"
 #include "Function.h"
 
 using namespace std;
