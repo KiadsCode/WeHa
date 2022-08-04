@@ -492,7 +492,7 @@ void ParseModuleNV(std::string& code)
     bool InStringBrackets = false;
     if (type == typeString)
     {
-        for (size_t i = mxh; code[i] != ';'; i++)
+        for (size_t i = mxh; i < code.length(); i++)
         {
             if (code[i] == '\"')
                 InStringBrackets = !InStringBrackets;
@@ -507,7 +507,7 @@ void ParseModuleNV(std::string& code)
     }
     if (type == typeNumber)
     {
-        for (size_t i = mxh; code[i] != ';'; i++)
+        for (size_t i = mxh; i < code.length(); i++)
         {
             if (code[i] != '=' && code[i] != ' ')
             {
@@ -520,7 +520,7 @@ void ParseModuleNV(std::string& code)
     }
     if (type == typeBool)
     {
-        for (size_t i = mxh; code[i] != ';'; i++)
+        for (size_t i = mxh; i < code.length(); i++)
         {
             if (code[i] != '=' && code[i] != ' ')
                 value += code[i];
@@ -707,7 +707,7 @@ void ParseNewVariable(std::string& code) {
     bool InStringBrackets = false;
     if (type == typeString)
     {
-        for (size_t i = mxh; code[i] != ';'; i++)
+        for (size_t i = mxh; i < code.length(); i++)
         {
             if (code[i] == '\"')
                 InStringBrackets = !InStringBrackets;
@@ -722,7 +722,7 @@ void ParseNewVariable(std::string& code) {
     }
     if (type == typeNumber)
     {
-        for (size_t i = mxh; code[i] != ';'; i++)
+        for (size_t i = mxh; i < code.length(); i++)
         {
             if (code[i] != '=' && code[i] != ' ')
             {
@@ -735,7 +735,7 @@ void ParseNewVariable(std::string& code) {
     }
     if (type == typeBool)
     {
-        for (size_t i = mxh; code[i] != ';'; i++)
+        for (size_t i = mxh; i < code.length(); i++)
         {
             if (code[i] != '=' && code[i] != ' ')
                 value += code[i];
