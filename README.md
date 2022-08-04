@@ -1,2 +1,2 @@
-# WeHa
+# WeHa-lang
 WeHa - programming language

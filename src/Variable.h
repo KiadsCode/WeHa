@@ -11,11 +11,11 @@ const std::string boolVarB = "false";
 class Variable
 {
 public:
-    int valueI = 0;
-    std::string name = "";
-    std::string type = "";
-    std::string valueS = "";
-    std::string valueB = "";
+    int valueI;
+    std::string name;
+    std::string type;
+    std::string valueS;
+    std::string valueB;
     Variable(std::string NAME, std::string TYPE, std::string VALUE);
     ~Variable();
 };

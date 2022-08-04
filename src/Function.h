@@ -7,9 +7,9 @@ class Function
 public:
 	Function(std::string NAME, int LINE, int ENDL);
 	~Function();
-	int onLine = 0;
-	int endLine = 1;
-	std::string name = "";
+	int onLine;
+	int endLine;
+	std::string name;
 private:
 
 };

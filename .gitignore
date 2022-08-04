@@ -1,4 +1,7 @@
 build/
 .vscode/
+vs10/
+vs10/vc60.pdb
 src/vc60.pdb
 src/textWriter.msd
+h.txt
