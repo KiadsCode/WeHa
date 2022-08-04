@@ -335,7 +335,7 @@ void ParseAssignVar(std::string& code)
     bool InStringBrackets = false;
     if (var.type == typeString)
     {
-        for (size_t i = mxh; code[i] != ';'; i++)
+        for (size_t i = mxh; i < code.length(); i++)
         {
             if (code[i] == '\"')
                 InStringBrackets = !InStringBrackets;
@@ -351,7 +351,7 @@ void ParseAssignVar(std::string& code)
     if (var.type == typeNumber)
     {
         char msc;
-        for (size_t i = mxh - 1; code[i] != ';'; i++)
+        for (size_t i = mxh - 1; i < code.length(); i++)
         {
             if (code[i] == '=' || code[i] == '+' || code[i] == '-')
                 msc = code[i];
@@ -383,7 +383,7 @@ void ParseAssignVar(std::string& code)
     }
     if (var.type == typeBool)
     {
-        for (size_t i = mxh; code[i] != ';'; i++)
+        for (size_t i = mxh; i < code.length(); i++)
         {
             if (code[i] != '=' && code[i] != ' ')
                 value += code[i];
