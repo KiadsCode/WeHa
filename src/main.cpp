@@ -1,23 +1,23 @@
 #include "main.h"
 
 #pragma region DEFFUN
+const std::string importFunction = "import";
 const std::string scriptFormat = ".wh";
 const std::string PrintFunction = "outline";
 const std::string PrintVarFunction = "outvar";
 const std::string InputFunction = "inline";
+const char execFunction = '~';
 #pragma endregion
 
 #pragma region CHARS
-const char execFunction = '~';
-const char modStart = '#';
 const char commentKeySign = '$';
 #pragma endregion
 
 #pragma region KEYWORDS
 const std::string moduleKeyWord = "module";
 const std::string mfsKeyWord = "mfs";
+const std::string mpKeyWord = "mp";
 const std::string moduleEndKeyWord = "endmod";
-const std::string mfKeyWord = "mf";
 const std::string funcKeyWord = "function";
 const std::string endFuncKeyWord = "end";
 const std::string varKeyWord = "var";
@@ -100,7 +100,6 @@ int FindVarNUM(std::string name){
     }
     return VARNUM;
 }
-
 Function FindFunc(std::string name) {
     int VARNUM = 0;
     for (size_t i = 0; i < Functions.size(); ++i)
@@ -131,6 +130,16 @@ Module FindMod(std::string name) {
     }
     return Modules.at(VARNUM);
 }
+int FindModNum(std::string name) {
+    int VARNUM = 0;
+    for (size_t i = 0; i < Modules.size(); ++i)
+    {
+        if (strcmp(Modules[i].name.c_str(), name.c_str()) == 0) {
+            VARNUM = i;
+        }
+    }
+    return VARNUM;
+}
 Function FindFuncInModule(std::string moduleName,std::string name) {
     Module mod = FindMod(moduleName);
     int VARNUM = 0;
@@ -153,7 +162,28 @@ int FindFuncNumInMod(std::string moduleName, std::string name) {
     }
     return VARNUM;
 }
-
+Variable FindVarInModule(std::string moduleName, std::string name) {
+    Module mod = FindMod(moduleName);
+    int VARNUM = 0;
+    for (size_t i = 0; i < mod.vars.size(); ++i)
+    {
+        if (strcmp(mod.vars[i].name.c_str(), name.c_str()) == 0) {
+            VARNUM = i;
+        }
+    }
+    return mod.vars.at(VARNUM);
+}
+int FindVarNumInMod(std::string moduleName, std::string name) {
+    Module mod = FindMod(moduleName);
+    int VARNUM = 0;
+    for (size_t i = 0; i < mod.vars.size(); ++i)
+    {
+        if (strcmp(mod.vars[i].name.c_str(), name.c_str()) == 0) {
+            VARNUM = i;
+        }
+    }
+    return VARNUM;
+}
 
 void Parser() {
     string Code = ScriptCode[LineNum];
@@ -213,9 +243,9 @@ bool ParseModule(std::string& code) {
     if (valid == moduleKeyWord)
         start = LineNum;
 
-    for (size_t i = moduleKeyWord.length(); code[i] != modStart; i++)
+    for (size_t i = moduleKeyWord.length(); i < code.length(); i++)
     {
-        if (code[i] != ' ' && code[i] != '(')
+        if (code[i] != ' ' && code[i] != '(' && code[i] != '#')
             name += code[i];
     }
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
@@ -238,6 +268,47 @@ bool ParseModule(std::string& code) {
         }
     }
     return false;
+}
+void ParseImport(std::string& code) {
+    string msg = "";
+    string validCode = "";
+    bool VALID = false;
+    bool inBracket = false;
+
+    for (size_t i = 0; i < code.length(); i++)
+    {
+        if (validCode != importFunction)
+            validCode += code[i];
+    }
+    if (validCode != importFunction)
+        return;
+    for (size_t i = importFunction.length(); i < code.length(); i++)
+    {
+        if (code[i] == '(')
+            inBracket = true;
+        if (code[i] != '(' && code[i] != ')' && code[i] != '"')
+            msg += code[i];
+        if (code[i] == ')') {
+            inBracket = false;
+            VALID = true;
+        }
+    }
+    if (VALID) {
+        Module mod = Modules.at(FindModNum(msg));
+        if (!mod.Imported) {
+            for (size_t i = 0; i < mod.funcs.size(); i++)
+            {
+                Functions.push_back(mod.funcs.at(i));
+            }
+            for (size_t i = 0; i < mod.vars.size(); i++)
+            {
+                Variables.push_back(mod.vars.at(i));
+            }
+            Modules.at(FindModNum(msg)).Imported = true;
+            return;
+        }
+        VALID = false;
+    }
 }
 void ParseMFS(std::string& code)
 {
@@ -297,6 +368,72 @@ void ParseMFS(std::string& code)
 
         LineNum = LineBefore;
 
+        VALID = false;
+    }
+}
+void ParseMP(std::string& code) {
+
+    string msg = "";
+    string validCode = "";
+    bool VALID = false;
+    bool inBracket = false;
+    bool nameOfModuleVAL = false;
+
+    for (int i = 0; i < code.length(); i++)
+    {
+        if (validCode != mpKeyWord)
+            validCode += code[i];
+    }
+    if (validCode != mpKeyWord)
+        return;
+    int ccp = 0;
+    for (int i = mpKeyWord.length(); i < code.length(); i++)
+    {
+        if (!nameOfModuleVAL) {
+            if (code[i] == '(')
+                inBracket = true;
+            if (code[i] != '(' && code[i] != ')' && code[i] != '"' && inBracket)
+                msg += code[i];
+            if (code[i] == ')') {
+                inBracket = false;
+                ccp = i;
+                nameOfModuleVAL = true;
+            }
+        }
+    }
+    int LineBefore = LineNum;
+    bool dotFinded = false;
+    bool InArg = false;
+    string funcArg = "";
+    for (size_t i = ccp + 1; code[i] != ')'; i++)
+    {
+        if (code[i] == '.')
+            dotFinded = true;
+        if (code[i] != '.' && dotFinded && code[i] != '(')
+            funcArg += code[i];
+    }
+
+    if (funcArg == "" || funcArg == " ")
+        return;
+    else
+        VALID = true;
+    if (VALID) {
+        Variable var = FindVarInModule(msg, funcArg);
+        if (var.type == typeBool) {
+            printf("%s", var.valueB.c_str());
+            printf("\n");
+            return;
+        }
+        if (var.type == typeString) {
+            printf("%s", var.valueS.c_str());
+            printf("\n");
+            return;
+        }
+        if (var.type == typeNumber) {
+            printf("%d", var.valueI);
+            printf("\n");
+            return;
+        }
         VALID = false;
     }
 }
@@ -438,7 +575,9 @@ void ParseMV(std::string& Code) {
     ParseStartFunc(Code);
     ParseNewVariable(Code);
     ParseAssignVar(Code);
+    ParseImport(Code);
     ParseMFS(Code);
+    ParseMP(Code);
     ParseVarOut(Code);
     ParsePrint(Code);
     ParseInput(Code);

@@ -11,6 +11,7 @@ class Module
 public:
     vector<Variable> vars;
     vector<Function> funcs;
+	bool Imported = false;
 	Module(std::string NAME, int LINE, int ENDL);
 	~Module();
 	int onLine;

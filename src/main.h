@@ -20,16 +20,18 @@ std::string replace(std::string& source, char oldChar, char newChar) {
 	return edited;
 }
 
-const std::string lx = "WeHa Lang Ver - 0.6.3\n\n"; // Lang Version
+const std::string lx = "WeHa Lang Ver - 0.6.4\n\n"; // Lang Version
 
 void Parser(); // Main Parser
 
 // Other Parsers
 void ParseVarOut(std::string& code);
 void ParsePrint(std::string& code);
+void ParseImport(std::string& code);
 bool ParseModule(std::string& code);
 void ParseModuleSF(std::string& code);
 void ParseModuleNV(std::string& code);
+void ParseMP(std::string& code);
 void ParseMFS(std::string& code);
 void ParseStartFunc(std::string& code);
 void ParseM(std::string& Code);
