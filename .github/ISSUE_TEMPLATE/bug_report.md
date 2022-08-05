@@ -8,5 +8,7 @@ assignees: ''
 ---
 
 **Describe the exception of c++**
+
+
 Describe the Exception that occurred during the operation of the language.
 Or the code on which the error occurred.
