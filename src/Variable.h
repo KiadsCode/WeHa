@@ -25,12 +25,13 @@ Variable::Variable(std::string NAME, std::string TYPE, std::string VALUE)
     name = NAME;
     type = TYPE;
     valueS = VALUE;
-    if (type == typeNumber){
+    if (type == typeNumber)
+    {
         try
         {
             valueI = atoi(valueS.c_str());
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
             std::cerr << e.what() << '\n';
         }

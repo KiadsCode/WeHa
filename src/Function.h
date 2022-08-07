@@ -10,8 +10,8 @@ public:
 	int onLine;
 	int endLine;
 	std::string name;
-private:
 
+private:
 };
 
 Function::Function(std::string NAME, int LINE, int ENDL)

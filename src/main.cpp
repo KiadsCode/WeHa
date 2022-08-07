@@ -33,7 +33,7 @@ vector<string> ScriptCode;
 int LineNum = 0;
 unsigned int targetMod = 0;
 
-int main(int argc, char const* argv[])
+int main(int argc, char const *argv[])
 {
     printf(lx.c_str());
     while (true)
@@ -42,9 +42,11 @@ int main(int argc, char const* argv[])
         printf("Command: ");
         scanf("%s", inputChar);
         string preCommand = inputChar;
-        if (preCommand == ".ex")
-            exit(-1);
-        if (preCommand == ".load") {
+        if (preCommand == "clrVar") {
+            Variables.clear();
+        }
+        if (preCommand == ".load")
+        {
             printf("Script to open: ");
             scanf("%s", inputChar);
             preCommand = inputChar;
@@ -55,7 +57,8 @@ int main(int argc, char const* argv[])
             LineNum = 0;
             if (!ffrom.is_open())
                 printf("\nfile error\n\n");
-            else {
+            else
+            {
                 while (!ffrom.eof())
                 {
                     lineCode = "";
@@ -67,7 +70,6 @@ int main(int argc, char const* argv[])
                     Parser();
                     LineNum++;
                 }
-                
             }
             ffrom.close();
             ScriptCode.clear();
@@ -76,123 +78,154 @@ int main(int argc, char const* argv[])
             Modules.clear();
             LineNum = 0;
         }
+        else
+        {
+            LineNum = 0;
+            preCommand = replace(preCommand, '_', ' ');
+            ScriptCode.push_back(preCommand);
+            Parser();
+        }
+        ScriptCode.clear();
+        LineNum = 0;
     }
+
     return 0;
 }
 
-Variable FindVar(std::string name){
+Variable FindVar(std::string name)
+{
     int VARNUM = 0;
     for (size_t i = 0; i < Variables.size(); ++i)
     {
-        if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
-        }   
+        }
     }
     return Variables.at(VARNUM);
 }
-int FindVarNUM(std::string name){
+int FindVarNUM(std::string name)
+{
     int VARNUM = 0;
     for (size_t i = 0; i < Variables.size(); ++i)
     {
-        if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
-        }   
+        }
     }
     return VARNUM;
 }
-Function FindFunc(std::string name) {
+Function FindFunc(std::string name)
+{
     int VARNUM = 0;
     for (size_t i = 0; i < Functions.size(); ++i)
     {
-        if (strcmp(Functions[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(Functions[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
         }
     }
     return Functions.at(VARNUM);
 }
-int FindFuncNum(std::string name) {
+int FindFuncNum(std::string name)
+{
     int VARNUM = 0;
     for (size_t i = 0; i < Functions.size(); ++i)
     {
-        if (strcmp(Functions[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(Functions[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
         }
     }
     return VARNUM;
 }
-Module FindMod(std::string name) {
+Module FindMod(std::string name)
+{
     int VARNUM = 0;
     for (size_t i = 0; i < Modules.size(); ++i)
     {
-        if (strcmp(Modules[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(Modules[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
         }
     }
     return Modules.at(VARNUM);
 }
-int FindModNum(std::string name) {
+int FindModNum(std::string name)
+{
     int VARNUM = 0;
     for (size_t i = 0; i < Modules.size(); ++i)
     {
-        if (strcmp(Modules[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(Modules[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
         }
     }
     return VARNUM;
 }
-Function FindFuncInModule(std::string moduleName,std::string name) {
+Function FindFuncInModule(std::string moduleName, std::string name)
+{
     Module mod = FindMod(moduleName);
     int VARNUM = 0;
     for (size_t i = 0; i < mod.funcs.size(); ++i)
     {
-        if (strcmp(mod.funcs[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(mod.funcs[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
         }
     }
     return mod.funcs.at(VARNUM);
 }
-int FindFuncNumInMod(std::string moduleName, std::string name) {
+int FindFuncNumInMod(std::string moduleName, std::string name)
+{
     Module mod = FindMod(moduleName);
     int VARNUM = 0;
     for (size_t i = 0; i < mod.funcs.size(); ++i)
     {
-        if (strcmp(mod.funcs[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(mod.funcs[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
         }
     }
     return VARNUM;
 }
-Variable FindVarInModule(std::string moduleName, std::string name) {
+Variable FindVarInModule(std::string moduleName, std::string name)
+{
     Module mod = FindMod(moduleName);
     int VARNUM = 0;
     for (size_t i = 0; i < mod.vars.size(); ++i)
     {
-        if (strcmp(mod.vars[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(mod.vars[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
         }
     }
     return mod.vars.at(VARNUM);
 }
-int FindVarNumInMod(std::string moduleName, std::string name) {
+int FindVarNumInMod(std::string moduleName, std::string name)
+{
     Module mod = FindMod(moduleName);
     int VARNUM = 0;
     for (size_t i = 0; i < mod.vars.size(); ++i)
     {
-        if (strcmp(mod.vars[i].name.c_str(), name.c_str()) == 0) {
+        if (strcmp(mod.vars[i].name.c_str(), name.c_str()) == 0)
+        {
             VARNUM = i;
         }
     }
     return VARNUM;
 }
 
-void Parser() {
+void Parser()
+{
     string Code = ScriptCode[LineNum];
     ParseMV(Code);
 }
 
-
 #pragma region PARSER
-bool ParseFunction(std::string& code) {
+bool ParseFunction(std::string &code)
+{
     string valid = "";
     string name = "";
     int start = 0, endF = 1;
@@ -216,7 +249,8 @@ bool ParseFunction(std::string& code) {
     }
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
     {
-        if (ScriptCode[i] == endFuncKeyWord.c_str()) {
+        if (ScriptCode[i] == endFuncKeyWord.c_str())
+        {
             endF = i;
             LineNum = endF;
             Function func(name, start, endF);
@@ -226,7 +260,8 @@ bool ParseFunction(std::string& code) {
     }
     return false;
 }
-bool ParseModule(std::string& code) {
+bool ParseModule(std::string &code)
+{
     string valid = "";
     string name = "";
     int start = 0, endF = 1;
@@ -250,7 +285,8 @@ bool ParseModule(std::string& code) {
     }
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
     {
-        if (ScriptCode[i] == moduleEndKeyWord.c_str()) {
+        if (ScriptCode[i] == moduleEndKeyWord.c_str())
+        {
             endF = i;
             LineNum = start + 1;
             Module modl(name, start, endF);
@@ -269,7 +305,8 @@ bool ParseModule(std::string& code) {
     }
     return false;
 }
-void ParseImport(std::string& code) {
+void ParseImport(std::string &code)
+{
     string msg = "";
     string validCode = "";
     bool VALID = false;
@@ -288,14 +325,17 @@ void ParseImport(std::string& code) {
             inBracket = true;
         if (code[i] != '(' && code[i] != ')' && code[i] != '"')
             msg += code[i];
-        if (code[i] == ')') {
+        if (code[i] == ')')
+        {
             inBracket = false;
             VALID = true;
         }
     }
-    if (VALID) {
+    if (VALID)
+    {
         Module mod = Modules.at(FindModNum(msg));
-        if (!mod.Imported) {
+        if (!mod.Imported)
+        {
             for (size_t i = 0; i < mod.funcs.size(); i++)
             {
                 Functions.push_back(mod.funcs.at(i));
@@ -310,7 +350,7 @@ void ParseImport(std::string& code) {
         VALID = false;
     }
 }
-void ParseMFS(std::string& code)
+void ParseMFS(std::string &code)
 {
     string msg = "";
     string validCode = "";
@@ -328,12 +368,14 @@ void ParseMFS(std::string& code)
     int ccp = 0;
     for (int i = mfsKeyWord.length(); i < code.length(); i++)
     {
-        if (!nameOfModuleVAL) {
+        if (!nameOfModuleVAL)
+        {
             if (code[i] == '(')
                 inBracket = true;
             if (code[i] != '(' && code[i] != ')' && code[i] != '"' && inBracket)
                 msg += code[i];
-            if (code[i] == ')') {
+            if (code[i] == ')')
+            {
                 inBracket = false;
                 ccp = i;
                 nameOfModuleVAL = true;
@@ -354,7 +396,8 @@ void ParseMFS(std::string& code)
         return;
     else
         VALID = true;
-    if (VALID) {
+    if (VALID)
+    {
         Module mod = FindMod(msg);
         Function fun = mod.funcs.at(FindFuncNumInMod(msg, funcName));
         LineNum = fun.onLine + 1;
@@ -371,7 +414,8 @@ void ParseMFS(std::string& code)
         VALID = false;
     }
 }
-void ParseMP(std::string& code) {
+void ParseMP(std::string &code)
+{
 
     string msg = "";
     string validCode = "";
@@ -389,12 +433,14 @@ void ParseMP(std::string& code) {
     int ccp = 0;
     for (int i = mpKeyWord.length(); i < code.length(); i++)
     {
-        if (!nameOfModuleVAL) {
+        if (!nameOfModuleVAL)
+        {
             if (code[i] == '(')
                 inBracket = true;
             if (code[i] != '(' && code[i] != ')' && code[i] != '"' && inBracket)
                 msg += code[i];
-            if (code[i] == ')') {
+            if (code[i] == ')')
+            {
                 inBracket = false;
                 ccp = i;
                 nameOfModuleVAL = true;
@@ -417,19 +463,23 @@ void ParseMP(std::string& code) {
         return;
     else
         VALID = true;
-    if (VALID) {
+    if (VALID)
+    {
         Variable var = FindVarInModule(msg, funcArg);
-        if (var.type == typeBool) {
+        if (var.type == typeBool)
+        {
             printf("%s", var.valueB.c_str());
             printf("\n");
             return;
         }
-        if (var.type == typeString) {
+        if (var.type == typeString)
+        {
             printf("%s", var.valueS.c_str());
             printf("\n");
             return;
         }
-        if (var.type == typeNumber) {
+        if (var.type == typeNumber)
+        {
             printf("%d", var.valueI);
             printf("\n");
             return;
@@ -437,7 +487,7 @@ void ParseMP(std::string& code) {
         VALID = false;
     }
 }
-void ParseAssignVar(std::string& code)
+void ParseAssignVar(std::string &code)
 {
     string name = "";
     string value = "";
@@ -452,10 +502,10 @@ void ParseAssignVar(std::string& code)
 
     if (validCode != letKeyWord)
         return;
-    
+
     for (size_t i = letKeyWord.length() + 1; i < code.length() - 1; i++)
     {
-        if (code[i] != ' ' || code[i] != '=' || code[i] != ':') 
+        if (code[i] != ' ' || code[i] != '=' || code[i] != ':')
             name += code[i];
         if (code[i] == ':' || code[i] == ' ')
             i = code.length() - 1;
@@ -484,7 +534,7 @@ void ParseAssignVar(std::string& code)
         Variables[FindVarNUM(name)].valueS = value;
         return;
     }
-    
+
     if (var.type == typeNumber)
     {
         char msc;
@@ -500,19 +550,23 @@ void ParseAssignVar(std::string& code)
         int VARNUM = 0;
         for (size_t i = 0; i < Variables.size(); ++i)
         {
-            if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0) {
+            if (strcmp(Variables[i].name.c_str(), name.c_str()) == 0)
+            {
                 VARNUM = i;
             }
         }
-        if (msc == '=') {
+        if (msc == '=')
+        {
             Variables[VARNUM].valueI = atoi(value.c_str());
             return;
         }
-        if (msc == '+') {
+        if (msc == '+')
+        {
             Variables[VARNUM].valueI += atoi(value.c_str());
             return;
         }
-        if (msc == '-') {
+        if (msc == '-')
+        {
             Variables[VARNUM].valueI -= atoi(value.c_str());
             return;
         }
@@ -529,7 +583,8 @@ void ParseAssignVar(std::string& code)
         return;
     }
 }
-void ParseVarOut(std::string& code) {
+void ParseVarOut(std::string &code)
+{
     string msg = "";
     string validCode = "";
     bool VALID = false;
@@ -548,12 +603,14 @@ void ParseVarOut(std::string& code) {
             inBracket = true;
         if (code[i] != '(' && code[i] != ')' && code[i] != '"')
             msg += code[i];
-        if (code[i] == ')') {
+        if (code[i] == ')')
+        {
             inBracket = false;
             VALID = true;
         }
     }
-    if (VALID) {
+    if (VALID)
+    {
         Variable varMAIN = FindVar(msg);
         if (varMAIN.type == typeString)
             printf(varMAIN.valueS.c_str());
@@ -565,7 +622,8 @@ void ParseVarOut(std::string& code) {
         VALID = false;
     }
 }
-void ParseMV(std::string& Code) {
+void ParseMV(std::string &Code)
+{
     if (Code[0] == commentKeySign || Code[0] == '\0')
         return;
     if (ParseModule(Code))
@@ -582,7 +640,8 @@ void ParseMV(std::string& Code) {
     ParsePrint(Code);
     ParseInput(Code);
 }
-void ParseM(std::string& Code) {
+void ParseM(std::string &Code)
+{
     if (Code[0] == commentKeySign || Code[0] == '\0')
         return;
     if (ParseModule(Code))
@@ -591,7 +650,7 @@ void ParseM(std::string& Code) {
     ParseModuleSF(Code);
     ParseMFS(Code);
 }
-void ParseModuleNV(std::string& code)
+void ParseModuleNV(std::string &code)
 {
     string name = "";
     string type = "";
@@ -669,7 +728,7 @@ void ParseModuleNV(std::string& code)
         return;
     }
 }
-void ParseModuleSF(std::string& code)
+void ParseModuleSF(std::string &code)
 {
     string valid = "";
     string name = "";
@@ -694,7 +753,8 @@ void ParseModuleSF(std::string& code)
     }
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
     {
-        if (ScriptCode[i] == endFuncKeyWord.c_str()) {
+        if (ScriptCode[i] == endFuncKeyWord.c_str())
+        {
             endF = i;
             LineNum = endF;
             Function func(name, start, endF);
@@ -703,7 +763,7 @@ void ParseModuleSF(std::string& code)
         }
     }
 }
-void ParseStartFunc(std::string& code)
+void ParseStartFunc(std::string &code)
 {
     string msg = "";
     int LineBefore = LineNum;
@@ -722,7 +782,8 @@ void ParseStartFunc(std::string& code)
         if (code[i] == ')' && code[i - 1] == '(')
             VALID = true;
     }
-    if (VALID) {
+    if (VALID)
+    {
 
         LineNum = FindFunc(msg).onLine + 1;
 
@@ -738,7 +799,8 @@ void ParseStartFunc(std::string& code)
         VALID = false;
     }
 }
-void ParsePrint(std::string& code) {
+void ParsePrint(std::string &code)
+{
     string msg = "";
     string validCode = "";
     bool VALID = false;
@@ -760,19 +822,22 @@ void ParsePrint(std::string& code) {
             inStringBrackets = !inStringBrackets;
         if (code[i] != ')' && code[i] != '"' && inStringBrackets)
             msg += code[i];
-        if (code[i] == ')') {
+        if (code[i] == ')')
+        {
             inBracket = false;
             inStringBrackets = false;
             VALID = true;
         }
     }
-    if (VALID) {
+    if (VALID)
+    {
         printf(msg.c_str());
         printf("\n");
         VALID = false;
     }
 }
-void ParseInput(std::string& code) {
+void ParseInput(std::string &code)
+{
     char Input[1024];
     string msg = "";
     string validCode = "";
@@ -795,19 +860,22 @@ void ParseInput(std::string& code) {
             inStringBrackets = !inStringBrackets;
         if (code[i] != ')' && code[i] != '"' && inStringBrackets)
             msg += code[i];
-        if (code[i] == ')') {
+        if (code[i] == ')')
+        {
             inBracket = false;
             inStringBrackets = false;
             VALID = true;
         }
     }
-    if (VALID) {
+    if (VALID)
+    {
         printf(msg.c_str());
         scanf("%s", Input);
         VALID = false;
     }
 }
-void ParseNewVariable(std::string& code) {
+void ParseNewVariable(std::string &code)
+{
     string name = "";
     string type = "";
     string value = "";
@@ -822,10 +890,10 @@ void ParseNewVariable(std::string& code) {
 
     if (validCode != varKeyWord)
         return;
-    
+
     for (size_t i = varKeyWord.length() + 1; i < code.length() - 1; i++)
     {
-        if (code[i] != ' ' || code[i] != '=' || code[i] != ':') 
+        if (code[i] != ' ' || code[i] != '=' || code[i] != ':')
             name += code[i];
         if (code[i] == ':' || code[i] == ' ')
             i = code.length() - 1;

@@ -9,8 +9,8 @@ using namespace std;
 class Module
 {
 public:
-    vector<Variable> vars;
-    vector<Function> funcs;
+	vector<Variable> vars;
+	vector<Function> funcs;
 	bool Imported = false;
 	Module(std::string NAME, int LINE, int ENDL);
 	~Module();
@@ -28,7 +28,7 @@ Module::Module(std::string NAME, int LINE, int ENDL)
 
 Module::~Module()
 {
-    onLine = 0;
-    endLine = 1;
-    name = "unnamed module";
+	onLine = 0;
+	endLine = 1;
+	name = "unnamed module";
 }
