@@ -75,9 +75,9 @@ int main(int argc, const char* argv[])
         printf("Command: ");
         scanf("%s", inputChar);
         string preCommand = inputChar;
-        if (preCommand == "clrVar") {
+        if (preCommand == "clrVar")
             Variables.clear();
-        }
+
         if (preCommand == "cls" || preCommand == "clear")
             system("cls");
         if (preCommand == ".load")
