@@ -78,6 +78,8 @@ int main(int argc, const char* argv[])
         if (preCommand == "clrVar") {
             Variables.clear();
         }
+        if (preCommand == "cls" || preCommand == "clear")
+            system("cls");
         if (preCommand == ".load")
         {
             printf("Script to open: ");
