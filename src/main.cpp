@@ -33,8 +33,41 @@ vector<string> ScriptCode;
 int LineNum = 0;
 unsigned int targetMod = 0;
 
-int main(int argc, char const *argv[])
+int main(int argc, const char* argv[])
 {
+    if (argv[1] != nullptr) {
+        ifstream ffrom;
+        string lineCode = "";
+        ffrom.open(argv[1]);
+
+        LineNum = 0;
+        if (!ffrom.is_open())
+            printf("\nfile error\n\n");
+        else
+        {
+            while (!ffrom.eof())
+            {
+                lineCode = "";
+                std::getline(ffrom, lineCode);
+                ScriptCode.push_back(lineCode);
+            }
+            while (LineNum != ScriptCode.size())
+            {
+                Parser();
+                LineNum++;
+            }
+        }
+        ffrom.close();
+        ScriptCode.clear();
+        Variables.clear();
+        Functions.clear();
+        Modules.clear();
+        LineNum = 0;
+        printf("Press any key to continue...");
+        getch();
+        system("cls");
+    }
+
     printf(lx.c_str());
     while (true)
     {
