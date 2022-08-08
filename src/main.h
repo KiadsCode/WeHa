@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <conio.h>
 #include "Variable.h"
 #include "Module.h"
 #include "Function.h"
