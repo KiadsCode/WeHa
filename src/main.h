@@ -22,6 +22,26 @@ std::string replace(std::string &source, char oldChar, char newChar)
 	}
 	return edited;
 }
+std::string replace(std::string& source, int startPoint, char oldChar, char newChar)
+{
+	std::string edited = source;
+	for (size_t i = startPoint; i < edited.length(); i++)
+	{
+		if (edited[i] == oldChar)
+			edited[i] = newChar;
+	}
+	return edited;
+}
+std::string replace(std::string& source, int startPoint, int endPoint, char oldChar, char newChar)
+{
+	std::string edited = source;
+	for (size_t i = startPoint; i < endPoint; i++)
+	{
+		if (edited[i] == oldChar)
+			edited[i] = newChar;
+	}
+	return edited;
+}
 
 const std::string lx = "WeHa Lang Ver - 0.6.8\n\n"; // Lang Version
 

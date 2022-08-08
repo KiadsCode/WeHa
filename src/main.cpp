@@ -47,8 +47,18 @@ int main(int argc, const char* argv[])
         {
             while (!ffrom.eof())
             {
+                bool spaceTrime = true;
+                int spaceEnd = 0;
                 lineCode = "";
                 std::getline(ffrom, lineCode);
+                for (size_t i = 0; spaceTrime; i++)
+                {
+                    if (lineCode[i] != ' ') {
+                        spaceEnd = i;
+                        spaceTrime = false;
+                    }
+                }
+                lineCode = lineCode.substr(spaceEnd, lineCode.length());
                 ScriptCode.push_back(lineCode);
             }
             while (LineNum != ScriptCode.size())
@@ -63,9 +73,8 @@ int main(int argc, const char* argv[])
         Functions.clear();
         Modules.clear();
         LineNum = 0;
-        printf("Press any key to continue...");
         getch();
-        system("cls");
+        exit(0);
     }
 
     printf(lx.c_str());
@@ -90,14 +99,26 @@ int main(int argc, const char* argv[])
             string lineCode = "";
             ffrom.open(preCommand);
             LineNum = 0;
+
             if (!ffrom.is_open())
                 printf("\nfile error\n\n");
             else
             {
                 while (!ffrom.eof())
                 {
+                    bool spaceTrime = true;
+                    int spaceEnd = 0;
                     lineCode = "";
                     std::getline(ffrom, lineCode);
+                    for (size_t i = 0; spaceTrime; i++)
+                    {
+                        if (lineCode[i] != ' ') {
+                            spaceEnd = i;
+                            spaceTrime = false;
+                        }
+                    
+                    }
+                    lineCode = lineCode.substr(spaceEnd, lineCode.length());
                     ScriptCode.push_back(lineCode);
                 }
                 while (LineNum != ScriptCode.size())
@@ -116,7 +137,6 @@ int main(int argc, const char* argv[])
         else
         {
             LineNum = 0;
-            preCommand = replace(preCommand, '_', ' ');
             ScriptCode.push_back(preCommand);
             Parser();
         }

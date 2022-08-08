@@ -12,6 +12,7 @@ class Variable
 {
 public:
     int valueI;
+    double valueD;
     std::string name;
     std::string type;
     std::string valueS;
