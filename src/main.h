@@ -43,7 +43,7 @@ std::string replace(std::string& source, int startPoint, int endPoint, char oldC
 	return edited;
 }
 
-const std::string lx = "WeHa Lang Ver - 0.6.8\n\n"; // Lang Version
+const std::string lx = "NewLang Ver - 1.0.0\n\n"; // Lang Version
 
 void Parser(); // Main Parser
 

@@ -7,12 +7,12 @@ const std::string typeString = "String";
 const std::string typeBool = "Boolean";
 const std::string boolVarA = "true";
 const std::string boolVarB = "false";
+const std::string null = "nil";
 
 class Variable
 {
 public:
     int valueI;
-    double valueD;
     std::string name;
     std::string type;
     std::string valueS;
@@ -28,6 +28,9 @@ Variable::Variable(std::string NAME, std::string TYPE, std::string VALUE)
     valueS = VALUE;
     if (type == typeNumber)
     {
+        if (valueS == null) {
+            valueS = "0";
+        }
         try
         {
             valueI = atoi(valueS.c_str());
@@ -39,6 +42,8 @@ Variable::Variable(std::string NAME, std::string TYPE, std::string VALUE)
     }
     if (type == typeBool)
     {
+        if (valueS == null)
+            valueS = boolVarB;
         if (valueS == boolVarA || valueS == boolVarB)
         {
             valueB = valueS;

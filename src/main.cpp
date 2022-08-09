@@ -1,9 +1,23 @@
 #include "main.h"
 
+enum class AssignEnum {
+    PlusNum,
+    PlusVarm,
+    MinusNum,
+    MinusVar,
+    AssignStr,
+    AssignStrVar,
+    AssignBool,
+    AssignBoolVar,
+    AssignNum,
+    AssignNumVar
+};
+
 #pragma region DEFFUN
 const std::string importFunction = "import";
 const std::string scriptFormat = ".wh";
 const std::string PrintFunction = "outline";
+const std::string LoadFunction = "loadScr";
 const std::string PrintVarFunction = "outvar";
 const std::string InputFunction = "inline";
 const char execFunction = '~';
@@ -302,6 +316,11 @@ bool ParseFunction(std::string &code)
         if (code[i] != ' ' && code[i] != '(')
             name += code[i];
     }
+    int lnForArgs = funcKeyWord.length() + name.length();
+    for (size_t i = lnForArgs; code[i] != ')'; i++)
+    {
+
+    }
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
     {
         if (ScriptCode[i] == endFuncKeyWord.c_str())
@@ -575,28 +594,71 @@ void ParseAssignVar(std::string &code)
     int mxh = totL;
 
     bool InStringBrackets = false;
+    AssignEnum assignType{};
     if (var.type == typeString)
     {
+        bool IsAESelected = false;
         for (size_t i = mxh; i < code.length(); i++)
         {
+            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected) {
+                assignType = AssignEnum::AssignStrVar;
+                IsAESelected = true;
+            }
+            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected) {
+                assignType = AssignEnum::AssignStrVar;
+                IsAESelected = true;
+            }
             if (code[i] == '\"')
                 InStringBrackets = !InStringBrackets;
-            if (code[i] != '\"' && code[i] != '=' && InStringBrackets)
+            if (code[i] != '\"' && code[i] != '=' && InStringBrackets && assignType == AssignEnum::AssignStr)
+            {
+                value += code[i];
+            }
+            if (code[i] != '\"' && code[i] != '=' && code[i] != ' ' && assignType == AssignEnum::AssignStrVar)
             {
                 value += code[i];
             }
         }
-        Variables[FindVarNUM(name)].valueS = value;
+        if (assignType == AssignEnum::AssignStr) {
+            Variables[FindVarNUM(name)].valueS = value;
+            return;
+        }
+        if (assignType == AssignEnum::AssignStrVar) {
+            Variables[FindVarNUM(name)].valueS = FindVar(value).valueS;
+            return;
+        }
         return;
     }
 
     if (var.type == typeNumber)
     {
-        char msc;
-        for (size_t i = mxh - 1; i < code.length(); i++)
+        bool IsAESelected = false;
+        for (size_t i = mxh; i < code.length(); i++)
         {
-            if (code[i] == '=' || code[i] == '+' || code[i] == '-')
-                msc = code[i];
+            if (code[i] == '+' && code[i + 1] == '=' && !IsAESelected) {
+                assignType = AssignEnum::PlusVarm;
+                IsAESelected = true;
+            }
+            if (code[i] == '+' && code[i + 1] == ' ' && !IsAESelected) {
+                assignType = AssignEnum::PlusNum;
+                IsAESelected = true;
+            }
+            if (code[i] == '-' && code[i + 1] == '=' && !IsAESelected) {
+                assignType = AssignEnum::MinusVar;
+                IsAESelected = true;
+            }
+            if (code[i] == '-' && code[i + 1] == ' ' && !IsAESelected) {
+                assignType = AssignEnum::MinusNum;
+                IsAESelected = true;
+            }
+            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected) {
+                assignType = AssignEnum::AssignNumVar;
+                IsAESelected = true;
+            }
+            if (code[i] == '=' && code[i + 1] == ' ' && !IsAESelected) {
+                assignType = AssignEnum::AssignNumVar;
+                IsAESelected = true;
+            }
             if (code[i] != '=' && code[i] != '+' && code[i] != '-' && code[i] != ' ')
             {
                 value += code[i];
@@ -610,32 +672,62 @@ void ParseAssignVar(std::string &code)
                 VARNUM = i;
             }
         }
-        if (msc == '=')
+        if (assignType == AssignEnum::AssignNum)
         {
             Variables[VARNUM].valueI = atoi(value.c_str());
             return;
         }
-        if (msc == '+')
+        if (assignType == AssignEnum::AssignNumVar)
+        {
+            Variables[VARNUM].valueI = FindVar(value).valueI;
+            return;
+        }
+        if (assignType == AssignEnum::PlusNum)
         {
             Variables[VARNUM].valueI += atoi(value.c_str());
             return;
         }
-        if (msc == '-')
+        if (assignType == AssignEnum::PlusVarm)
+        {
+            Variables[VARNUM].valueI += FindVar(value).valueI;
+            return;
+        }
+        if (assignType == AssignEnum::MinusNum)
         {
             Variables[VARNUM].valueI -= atoi(value.c_str());
+            return;
+        }
+        if (assignType == AssignEnum::MinusVar)
+        {
+            Variables[VARNUM].valueI -= FindVar(value).valueI;
             return;
         }
         return;
     }
     if (var.type == typeBool)
     {
+        bool IsAESelected = false;
         for (size_t i = mxh; i < code.length(); i++)
         {
+            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected) {
+                assignType = AssignEnum::AssignBoolVar;
+                IsAESelected = true;
+            }
+            if (code[i] == '=' && code[i + 1] == ' ' && !IsAESelected) {
+                assignType = AssignEnum::AssignBool;
+                IsAESelected = true;
+            }
             if (code[i] != '=' && code[i] != ' ')
                 value += code[i];
         }
-        Variables[FindVarNUM(name)].valueB = value;
-        return;
+        if (assignType == AssignEnum::AssignBool) {
+            Variables[FindVarNUM(name)].valueB = value;
+            return;
+        }
+        if (assignType == AssignEnum::AssignBoolVar) {
+            Variables[FindVarNUM(name)].valueB = FindVar(value).valueB;
+            return;
+        }
     }
 }
 void ParseVarOut(std::string &code)
