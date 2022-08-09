@@ -11,6 +11,7 @@
 #include "Function.h"
 
 using namespace std;
+using namespace weha;
 
 std::string replace(std::string &source, char oldChar, char newChar)
 {

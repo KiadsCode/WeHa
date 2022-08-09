@@ -9,47 +9,51 @@ const std::string boolVarA = "true";
 const std::string boolVarB = "false";
 const std::string null = "nil";
 
-class Variable
+namespace weha
 {
-public:
-    int valueI;
-    std::string name;
-    std::string type;
-    std::string valueS;
-    std::string valueB;
-    Variable(std::string NAME, std::string TYPE, std::string VALUE);
-    ~Variable();
-};
+    class Variable
+    {
+    public:
+        int valueI;
+        std::string name;
+        std::string type;
+        std::string valueS;
+        std::string valueB;
+        Variable(std::string NAME, std::string TYPE, std::string VALUE);
+        ~Variable();
+    };
 
-Variable::Variable(std::string NAME, std::string TYPE, std::string VALUE)
-{
-    name = NAME;
-    type = TYPE;
-    valueS = VALUE;
-    if (type == typeNumber)
+    Variable::Variable(std::string NAME, std::string TYPE, std::string VALUE)
     {
-        if (valueS == null) {
-            valueS = "0";
-        }
-        try
+        name = NAME;
+        type = TYPE;
+        valueS = VALUE;
+        if (type == typeNumber)
         {
-            valueI = atoi(valueS.c_str());
+            if (valueS == null)
+            {
+                valueS = "0";
+            }
+            try
+            {
+                valueI = atoi(valueS.c_str());
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e.what() << '\n';
+            }
         }
-        catch (const std::exception &e)
+        if (type == typeBool)
         {
-            std::cerr << e.what() << '\n';
+            if (valueS == null)
+                valueS = boolVarB;
+            if (valueS == boolVarA || valueS == boolVarB)
+            {
+                valueB = valueS;
+            }
         }
     }
-    if (type == typeBool)
+    Variable::~Variable()
     {
-        if (valueS == null)
-            valueS = boolVarB;
-        if (valueS == boolVarA || valueS == boolVarB)
-        {
-            valueB = valueS;
-        }
     }
-}
-Variable::~Variable()
-{
 }
