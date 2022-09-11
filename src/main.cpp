@@ -1,6 +1,8 @@
 #include "main.h"
 
-enum class AssignEnum {
+#pragma region ENUMS
+enum class AssignEnum
+{
     PlusNum,
     PlusVarm,
     MinusNum,
@@ -12,18 +14,24 @@ enum class AssignEnum {
     AssignNum,
     AssignNumVar
 };
+enum class IFOperators
+{
+    IsEqual,
+    IsntEqual,
+    LowerThan,
+    GreaterThan
+};
+#pragma endregion
 
 #pragma region DEFFUN
 const std::string importFunction = "import";
 const std::string scriptFormat = ".wh";
-const std::string PrintFunction = "outline";
-const std::string LoadFunction = "loadScr";
-const std::string PrintVarFunction = "outvar";
-const std::string InputFunction = "inline";
-const char execFunction = '~';
+const std::string PrintFunction = "print";
+const std::string InputFunction = "input";
 #pragma endregion
 
 #pragma region CHARS
+const char execFunction = '~';
 const char commentKeySign = '$';
 #pragma endregion
 
@@ -31,6 +39,8 @@ const char commentKeySign = '$';
 const std::string moduleKeyWord = "module";
 const std::string mfsKeyWord = "mfs";
 const std::string mpKeyWord = "mp";
+const std::string ifKeyWord = "if";
+const std::string endIfKeyWord = "endif";
 const std::string moduleEndKeyWord = "endmod";
 const std::string funcKeyWord = "function";
 const std::string endFuncKeyWord = "end";
@@ -47,9 +57,10 @@ vector<string> ScriptCode;
 int LineNum = 0;
 unsigned int targetMod = 0;
 
-int main(int argc, const char* argv[])
+int main(int argc, const char *argv[])
 {
-    if (argv[1] != nullptr) {
+    if (argv[1] != nullptr)
+    {
         ifstream ffrom;
         string lineCode = "";
         ffrom.open(argv[1]);
@@ -67,7 +78,8 @@ int main(int argc, const char* argv[])
                 std::getline(ffrom, lineCode);
                 for (size_t i = 0; spaceTrime; i++)
                 {
-                    if (lineCode[i] != ' ') {
+                    if (lineCode[i] != ' ')
+                    {
                         spaceEnd = i;
                         spaceTrime = false;
                     }
@@ -126,11 +138,11 @@ int main(int argc, const char* argv[])
                     std::getline(ffrom, lineCode);
                     for (size_t i = 0; spaceTrime; i++)
                     {
-                        if (lineCode[i] != ' ') {
+                        if (lineCode[i] != ' ')
+                        {
                             spaceEnd = i;
                             spaceTrime = false;
                         }
-                    
                     }
                     lineCode = lineCode.substr(spaceEnd, lineCode.length());
                     ScriptCode.push_back(lineCode);
@@ -161,6 +173,7 @@ int main(int argc, const char* argv[])
     return 0;
 }
 
+#pragma region Finder
 Variable FindVar(std::string name)
 {
     int VARNUM = 0;
@@ -286,6 +299,8 @@ int FindVarNumInMod(std::string moduleName, std::string name)
     return VARNUM;
 }
 
+#pragma endregion
+
 void Parser()
 {
     string Code = ScriptCode[LineNum];
@@ -319,7 +334,6 @@ bool ParseFunction(std::string &code)
     int lnForArgs = funcKeyWord.length() + name.length();
     for (size_t i = lnForArgs; code[i] != ')'; i++)
     {
-
     }
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
     {
@@ -587,8 +601,8 @@ void ParseAssignVar(std::string &code)
 
     if (name == " " || name == "")
         return;
-    name = replace(name, ':', '\0');
-    name = replace(name, ' ', '\0');
+    name = StringUtil::replace(name, ':', '\0');
+    name = StringUtil::replace(name, ' ', '\0');
     int totL = letKeyWord.length() + 1 + name.length();
     Variable var = Variables.at(FindVarNUM(name));
     int mxh = totL;
@@ -600,11 +614,13 @@ void ParseAssignVar(std::string &code)
         bool IsAESelected = false;
         for (size_t i = mxh; i < code.length(); i++)
         {
-            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected) {
+            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected)
+            {
                 assignType = AssignEnum::AssignStrVar;
                 IsAESelected = true;
             }
-            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected) {
+            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected)
+            {
                 assignType = AssignEnum::AssignStrVar;
                 IsAESelected = true;
             }
@@ -619,11 +635,13 @@ void ParseAssignVar(std::string &code)
                 value += code[i];
             }
         }
-        if (assignType == AssignEnum::AssignStr) {
+        if (assignType == AssignEnum::AssignStr)
+        {
             Variables[FindVarNUM(name)].valueS = value;
             return;
         }
-        if (assignType == AssignEnum::AssignStrVar) {
+        if (assignType == AssignEnum::AssignStrVar)
+        {
             Variables[FindVarNUM(name)].valueS = FindVar(value).valueS;
             return;
         }
@@ -635,27 +653,33 @@ void ParseAssignVar(std::string &code)
         bool IsAESelected = false;
         for (size_t i = mxh; i < code.length(); i++)
         {
-            if (code[i] == '+' && code[i + 1] == '=' && !IsAESelected) {
+            if (code[i] == '+' && code[i + 1] == '=' && !IsAESelected)
+            {
                 assignType = AssignEnum::PlusVarm;
                 IsAESelected = true;
             }
-            if (code[i] == '+' && code[i + 1] == ' ' && !IsAESelected) {
+            if (code[i] == '+' && code[i + 1] == ' ' && !IsAESelected)
+            {
                 assignType = AssignEnum::PlusNum;
                 IsAESelected = true;
             }
-            if (code[i] == '-' && code[i + 1] == '=' && !IsAESelected) {
+            if (code[i] == '-' && code[i + 1] == '=' && !IsAESelected)
+            {
                 assignType = AssignEnum::MinusVar;
                 IsAESelected = true;
             }
-            if (code[i] == '-' && code[i + 1] == ' ' && !IsAESelected) {
+            if (code[i] == '-' && code[i + 1] == ' ' && !IsAESelected)
+            {
                 assignType = AssignEnum::MinusNum;
                 IsAESelected = true;
             }
-            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected) {
+            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected)
+            {
                 assignType = AssignEnum::AssignNumVar;
                 IsAESelected = true;
             }
-            if (code[i] == '=' && code[i + 1] == ' ' && !IsAESelected) {
+            if (code[i] == '=' && code[i + 1] == ' ' && !IsAESelected)
+            {
                 assignType = AssignEnum::AssignNumVar;
                 IsAESelected = true;
             }
@@ -709,64 +733,29 @@ void ParseAssignVar(std::string &code)
         bool IsAESelected = false;
         for (size_t i = mxh; i < code.length(); i++)
         {
-            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected) {
+            if (code[i] == '=' && code[i + 1] == '=' && !IsAESelected)
+            {
                 assignType = AssignEnum::AssignBoolVar;
                 IsAESelected = true;
             }
-            if (code[i] == '=' && code[i + 1] == ' ' && !IsAESelected) {
+            if (code[i] == '=' && code[i + 1] == ' ' && !IsAESelected)
+            {
                 assignType = AssignEnum::AssignBool;
                 IsAESelected = true;
             }
             if (code[i] != '=' && code[i] != ' ')
                 value += code[i];
         }
-        if (assignType == AssignEnum::AssignBool) {
+        if (assignType == AssignEnum::AssignBool)
+        {
             Variables[FindVarNUM(name)].valueB = value;
             return;
         }
-        if (assignType == AssignEnum::AssignBoolVar) {
+        if (assignType == AssignEnum::AssignBoolVar)
+        {
             Variables[FindVarNUM(name)].valueB = FindVar(value).valueB;
             return;
         }
-    }
-}
-void ParseVarOut(std::string &code)
-{
-    string msg = "";
-    string validCode = "";
-    bool VALID = false;
-    bool inBracket = false;
-
-    for (int i = 0; i < code.length(); i++)
-    {
-        if (validCode != PrintVarFunction)
-            validCode += code[i];
-    }
-    if (validCode != PrintVarFunction)
-        return;
-    for (int i = PrintVarFunction.length(); i < code.length(); i++)
-    {
-        if (code[i] == '(')
-            inBracket = true;
-        if (code[i] != '(' && code[i] != ')' && code[i] != '"')
-            msg += code[i];
-        if (code[i] == ')')
-        {
-            inBracket = false;
-            VALID = true;
-        }
-    }
-    if (VALID)
-    {
-        Variable varMAIN = FindVar(msg);
-        if (varMAIN.type == typeString)
-            printf(varMAIN.valueS.c_str());
-        if (varMAIN.type == typeBool)
-            printf(varMAIN.valueB.c_str());
-        if (varMAIN.type == typeNumber)
-            printf("%d", varMAIN.valueI);
-        printf("\n");
-        VALID = false;
     }
 }
 void ParseMV(std::string &Code)
@@ -777,15 +766,15 @@ void ParseMV(std::string &Code)
         return;
     if (ParseFunction(Code))
         return;
+    ParsePrint(Code);
     ParseStartFunc(Code);
     ParseNewVariable(Code);
     ParseAssignVar(Code);
     ParseImport(Code);
     ParseMFS(Code);
     ParseMP(Code);
-    ParseVarOut(Code);
-    ParsePrint(Code);
     ParseInput(Code);
+    ParseIf(Code);
 }
 void ParseM(std::string &Code)
 {
@@ -824,7 +813,7 @@ void ParseModuleNV(std::string &code)
 
     if (name == " " || name == "")
         return;
-    name = replace(name, ':', '\0');
+    name = StringUtil::replace(name, ':', '\0');
     int totL = varKeyWord.length() + 1 + name.length();
 
     for (size_t i = totL; code[i] != ' '; i++)
@@ -953,6 +942,7 @@ void ParsePrint(std::string &code)
     bool VALID = false;
     bool inBracket = false;
     bool inStringBrackets = false;
+    bool isVariable = false;
 
     for (int i = 0; i < code.length(); i++)
     {
@@ -967,8 +957,15 @@ void ParsePrint(std::string &code)
             inBracket = true;
         if (code[i] == '"' && inBracket)
             inStringBrackets = !inStringBrackets;
-        if (code[i] != ')' && code[i] != '"' && inStringBrackets)
+        if (code[i] != ')' && code[i] != '"' && inStringBrackets && !isVariable)
             msg += code[i];
+        if (code[i] != ')' && code[i] != '"' && !inStringBrackets && isVariable)
+            msg += code[i];
+
+        if (code[i] != '(' && code[i] != ')' && code[i] != '\"' && !inStringBrackets) {
+            isVariable = true;
+        }
+
         if (code[i] == ')')
         {
             inBracket = false;
@@ -978,8 +975,25 @@ void ParsePrint(std::string &code)
     }
     if (VALID)
     {
-        printf(msg.c_str());
-        printf("\n");
+        if (!isVariable) {
+            printf(msg.c_str());
+            printf("\n");
+        }
+        if (isVariable) {
+            Variable var = FindVar(msg);
+            if (var.type == typeNumber) {
+                printf("%d\n", var.valueI);
+                return;
+            }
+            if (var.type == typeBool) {
+                printf("%b\n", var.valueB);
+                return;
+            }
+            if (var.type == typeString) {
+                printf("%s\n", var.valueS);
+                return;
+            }
+        }
         VALID = false;
     }
 }
@@ -1048,7 +1062,7 @@ void ParseNewVariable(std::string &code)
 
     if (name == " " || name == "")
         return;
-    name = replace(name, ':', '\0');
+    name = StringUtil::replace(name, ':', '\0');
     int totL = varKeyWord.length() + 1 + name.length();
 
     for (size_t i = totL; code[i] != ' '; i++)
@@ -1096,6 +1110,169 @@ void ParseNewVariable(std::string &code)
         }
         Variable var(name, type, value);
         Variables.push_back(var);
+        return;
+    }
+}
+void ParseIf(std::string& code)
+{
+    string valid = "";
+    string sm = "";
+    string Aname = "";
+    string Bname = "";
+    int start = 0, endF = 1;
+    bool operatorSelected = false;
+    IFOperators finoperator;
+    int checkL = LineNum;
+
+    for (size_t i = 0; i < code.length(); i++)
+    {
+        if (valid != ifKeyWord && code[i] != ' ' && code[i] != '\t')
+            valid += code[i];
+    }
+
+    if (valid != ifKeyWord)
+        return;
+    if (valid == ifKeyWord)
+        start = LineNum;
+
+    for (size_t i = ifKeyWord.length() + 1; code[i] != ' '; i++)
+    {
+        if (code[i] != ' ' && code[i] != '=' && code[i] != '!' && code[i] != '<' && code[i] != '>')
+            Aname += code[i];
+    }
+    for (size_t i = ifKeyWord.length() + Aname.length() + 2; code[i] != ' '; i++)
+    {
+        if (code[i] == '=' && code[i + 1] == '=' && !operatorSelected) {
+            finoperator = IFOperators::IsEqual;
+            operatorSelected = true;
+        }
+        if (code[i] == '!' && code[i + 1] == '=' && !operatorSelected) {
+            finoperator = IFOperators::IsntEqual;
+            operatorSelected = true;
+        }
+        if (code[i] == '>' && code[i + 1] == ' ' && !operatorSelected) {
+            finoperator = IFOperators::GreaterThan;
+            operatorSelected = true;
+        }
+        if (code[i] == '<' && code[i + 1] == ' ' && !operatorSelected) {
+            finoperator = IFOperators::LowerThan;
+            operatorSelected = true;
+        }
+    }
+    for (size_t i = ifKeyWord.length() + Aname.length() + 1; i < code.length(); i++)
+    {
+        if (code[i] != ' ' && code[i] != '=' && code[i] != '!' && code[i] != '<' && code[i] != '>')
+            Bname += code[i];
+    }
+    bool nTT = true;
+    for (size_t i = start + 1; i < ScriptCode.size(); i++)
+    {
+        nTT = true;
+        int startTrim = 0;
+        string ccode = ScriptCode[i];
+        for (size_t i = 0; nTT; i++)
+        {
+            if (ccode[i] != '\t') {
+                startTrim = i;
+                nTT = false;
+            }
+        }
+        ccode = ccode.substr(startTrim, ScriptCode[i].length());
+        if (ccode == endIfKeyWord.c_str())
+        {
+            endF = i;
+            LineNum = start + 1;
+            break;
+        }
+    }
+    bool needToParse = false;
+    Variable varA = FindVar(Aname);
+    Variable varB = FindVar(Bname);
+    bool needToTrim = true;
+    switch (finoperator)
+    {
+    case IFOperators::IsEqual:
+        if (varA.type == typeString && varB.type == typeString) {
+            if (varA.valueS == varB.valueS) {
+                needToParse = true;
+                break;
+            }
+        }
+        if (varA.type == typeNumber && varB.type == typeNumber) {
+            if (varA.valueI == varB.valueI) {
+                needToParse = true;
+                break;
+            }
+        }
+        if (varA.type == typeBool && varB.type == typeBool) {
+            if (varA.valueB == varB.valueB) {
+                needToParse = true;
+                break;
+            }
+        }
+        break;
+    case IFOperators::IsntEqual:
+        if (varA.type == typeString && varB.type == typeString) {
+            if (varA.valueS != varB.valueS) {
+                needToParse = true;
+                break;
+            }
+        }
+        if (varA.type == typeNumber && varB.type == typeNumber) {
+            if (varA.valueI != varB.valueI) {
+                needToParse = true;
+                break;
+            }
+        }
+        if (varA.type == typeBool && varB.type == typeBool) {
+            if (varA.valueB != varB.valueB) {
+                needToParse = true;
+                break;
+            }
+        }
+        break;
+    case IFOperators::GreaterThan:
+        if (varA.type == typeNumber && varB.type == typeNumber) {
+            if (varA.valueI > varB.valueI) {
+                needToParse = true;
+                break;
+            }
+        }
+        break;
+    case IFOperators::LowerThan:
+        if (varA.type == typeNumber && varB.type == typeNumber) {
+            if (varA.valueI < varB.valueI) {
+                needToParse = true;
+                break;
+            }
+        }
+        break;
+    }
+    if (needToParse) {
+        for (size_t i = start + 1; i != endF;)
+        {
+            int startTrim = 0;
+            string ccode = ScriptCode[i];
+            for (size_t i = 0; needToTrim; i++)
+            {
+                if (ccode[i] != '\t') {
+                    startTrim = i;
+                    needToTrim = false;
+                }
+            }
+            ccode = ccode.substr(startTrim, ccode.length());
+            ParseMV(ccode);
+            i++;
+            if (i == endF) {
+                needToParse = false;
+                LineNum = endF;
+                break;
+            }
+        }
+        needToParse = false;
+        return;
+    }
+    else {
         return;
     }
 }
