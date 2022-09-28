@@ -680,7 +680,7 @@ void ParseAssignVar(std::string &code)
             }
             if (code[i] == '=' && code[i + 1] == ' ' && !IsAESelected)
             {
-                assignType = AssignEnum::AssignNumVar;
+                assignType = AssignEnum::AssignNum;
                 IsAESelected = true;
             }
             if (code[i] != '=' && code[i] != '+' && code[i] != '-' && code[i] != ' ')
@@ -990,7 +990,7 @@ void ParsePrint(std::string &code)
                 return;
             }
             if (var.type == typeString) {
-                printf("%s\n", var.valueS);
+                printf("%s\n", var.valueS.c_str());
                 return;
             }
         }
