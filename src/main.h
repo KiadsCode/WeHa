@@ -19,7 +19,6 @@ const std::string lx = "WeHa Ver - 1.0.0\n\n"; // Lang Version
 void Parser(); // Main Parser
 
 // Other Parsers
-void ParseVarOut(std::string &code);
 void ParseIf(std::string &code);
 void ParsePrint(std::string &code);
 void ParseImport(std::string &code);
@@ -30,6 +29,7 @@ void ParseMP(std::string &code);
 void ParseMFS(std::string &code);
 void ParseStartFunc(std::string &code);
 void ParseM(std::string &Code);
+void ParseWhile(std::string& code);
 void ParseMV(std::string &Code);
 void ParseInput(std::string &code);
 bool ParseFunction(std::string &code);

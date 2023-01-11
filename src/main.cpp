@@ -16,6 +16,7 @@ enum class AssignEnum
 };
 enum class IFOperators
 {
+    None,
     IsEqual,
     IsntEqual,
     LowerThan,
@@ -24,28 +25,24 @@ enum class IFOperators
 #pragma endregion
 
 #pragma region DEFFUN
-const std::string importFunction = "import";
-const std::string scriptFormat = ".wh";
-const std::string PrintFunction = "print";
-const std::string InputFunction = "input";
-#pragma endregion
-
-#pragma region CHARS
-const char execFunction = '~';
-const char commentKeySign = '$';
+const string importFunction = "import";
+const string scriptFormat = ".wh";
+const string PrintFunction = "print";
+const string InputFunction = "input";
 #pragma endregion
 
 #pragma region KEYWORDS
-const std::string moduleKeyWord = "module";
-const std::string mfsKeyWord = "mfs";
-const std::string mpKeyWord = "mp";
-const std::string ifKeyWord = "if";
-const std::string endIfKeyWord = "endif";
-const std::string moduleEndKeyWord = "endmod";
-const std::string funcKeyWord = "function";
-const std::string endFuncKeyWord = "end";
-const std::string varKeyWord = "var";
-const std::string letKeyWord = "let";
+const string moduleKeyWord = "module";
+const string mfsKeyWord = "mfs";
+const string mpKeyWord = "mp";
+const char commentKeyChar = '$';
+const string ifKeyWord = "if";
+const string constKeyWord = "const";
+const string whileKeyWord = "while";
+const string endKeyWord = "end";
+const string funcKeyWord = "function";
+const string varKeyWord = "var";
+const string letKeyWord = "let";
 #pragma endregion
 
 vector<Variable> Variables;
@@ -99,7 +96,6 @@ int main(int argc, const char *argv[])
         Functions.clear();
         Modules.clear();
         LineNum = 0;
-        getch();
         exit(0);
     }
 
@@ -203,7 +199,8 @@ Function FindFunc(std::string name)
     int VARNUM = 0;
     for (size_t i = 0; i < Functions.size(); ++i)
     {
-        if (strcmp(Functions[i].name.c_str(), name.c_str()) == 0)
+        const char* curName = Functions[i].name.c_str();
+        if (strcmp(curName, name.c_str()) == 0)
         {
             VARNUM = i;
         }
@@ -332,12 +329,10 @@ bool ParseFunction(std::string &code)
             name += code[i];
     }
     int lnForArgs = funcKeyWord.length() + name.length();
-    for (size_t i = lnForArgs; code[i] != ')'; i++)
-    {
-    }
+
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
     {
-        if (ScriptCode[i] == endFuncKeyWord.c_str())
+        if (ScriptCode[i] == endKeyWord + " func")
         {
             endF = i;
             LineNum = endF;
@@ -373,7 +368,8 @@ bool ParseModule(std::string &code)
     }
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
     {
-        if (ScriptCode[i] == moduleEndKeyWord.c_str())
+        string endModKeyWord = (endKeyWord + " mod");
+        if (ScriptCode[i] == endModKeyWord)
         {
             endF = i;
             LineNum = start + 1;
@@ -575,7 +571,7 @@ void ParseMP(std::string &code)
         VALID = false;
     }
 }
-void ParseAssignVar(std::string &code)
+void ParseAssignVar(std::string& code)
 {
     string name = "";
     string value = "";
@@ -606,9 +602,12 @@ void ParseAssignVar(std::string &code)
     int totL = letKeyWord.length() + 1 + name.length();
     Variable var = Variables.at(FindVarNUM(name));
     int mxh = totL;
-
     bool InStringBrackets = false;
     AssignEnum assignType{};
+
+    if (var.isConstant)
+        return;
+
     if (var.type == typeString)
     {
         bool IsAESelected = false;
@@ -647,7 +646,6 @@ void ParseAssignVar(std::string &code)
         }
         return;
     }
-
     if (var.type == typeNumber)
     {
         bool IsAESelected = false;
@@ -760,25 +758,34 @@ void ParseAssignVar(std::string &code)
 }
 void ParseMV(std::string &Code)
 {
-    if (Code[0] == commentKeySign || Code[0] == '\0')
+    string preferedCode = "";
+
+    for (size_t i = 0; i < Code.length(); i++)
+    {
+        if (Code[i] != '\t')
+            preferedCode += Code[i];
+    }
+
+    if (preferedCode[0] == commentKeyChar || preferedCode[0] == '\0')
         return;
-    if (ParseModule(Code))
+    if (ParseModule(preferedCode))
         return;
-    if (ParseFunction(Code))
+    if (ParseFunction(preferedCode))
         return;
-    ParsePrint(Code);
-    ParseStartFunc(Code);
-    ParseNewVariable(Code);
-    ParseAssignVar(Code);
-    ParseImport(Code);
-    ParseMFS(Code);
-    ParseMP(Code);
-    ParseInput(Code);
-    ParseIf(Code);
+    ParsePrint(preferedCode);
+    ParseStartFunc(preferedCode);
+    ParseNewVariable(preferedCode);
+    ParseAssignVar(preferedCode);
+    ParseImport(preferedCode);
+    ParseWhile(preferedCode);
+    ParseMFS(preferedCode);
+    ParseMP(preferedCode);
+    ParseInput(preferedCode);
+    ParseIf(preferedCode);
 }
 void ParseM(std::string &Code)
 {
-    if (Code[0] == commentKeySign || Code[0] == '\0')
+    if (Code[0] == commentKeyChar || Code[0] == '\0')
         return;
     if (ParseModule(Code))
         return;
@@ -889,7 +896,7 @@ void ParseModuleSF(std::string &code)
     }
     for (size_t i = start + 1; i < ScriptCode.size(); i++)
     {
-        if (ScriptCode[i] == endFuncKeyWord.c_str())
+        if (ScriptCode[i] == endKeyWord + "func")
         {
             endF = i;
             LineNum = endF;
@@ -907,23 +914,27 @@ void ParseStartFunc(std::string &code)
     bool VALID = false;
     bool inBracket = false;
 
-    if (code[0] != execFunction)
-        return;
-    for (int i = 1; code[i] != '('; i++)
+    for (int i = 0; code[i] != '(' && i < code.length(); i++)
     {
         msg += code[i];
+        if (msg == funcKeyWord)
+            return;
     }
-    for (size_t i = msg.length() + 1; i < code.length(); i++)
+
+    if (msg.length() == code.length())
+        return;
+
+    for (size_t i = msg.length(); i < code.length(); i++)
     {
         if (code[i] == ')' && code[i - 1] == '(')
             VALID = true;
     }
     if (VALID)
     {
+        Function function = FindFunc(msg);
+        LineNum = function.onLine + 1;
 
-        LineNum = FindFunc(msg).onLine + 1;
-
-        while (LineNum != FindFunc(msg).endLine)
+        while (LineNum != function.endLine)
         {
             string Code = ScriptCode[LineNum];
             ParseMV(Code);
@@ -1042,15 +1053,19 @@ void ParseNewVariable(std::string &code)
     string value = "";
     string validCode = "";
     bool VALID = false;
+    bool isConst = false;
 
     for (size_t i = 0; i < code.length(); i++)
     {
-        if (validCode != varKeyWord)
+        if (validCode != varKeyWord && validCode != constKeyWord + " " + varKeyWord)
             validCode += code[i];
     }
 
-    if (validCode != varKeyWord)
+    if (validCode != varKeyWord && validCode != constKeyWord + " " + varKeyWord)
         return;
+
+    if (validCode == constKeyWord + " " + varKeyWord)
+        isConst = true;
 
     for (size_t i = varKeyWord.length() + 1; i < code.length() - 1; i++)
     {
@@ -1085,6 +1100,7 @@ void ParseNewVariable(std::string &code)
             }
         }
         Variable var(name, type, value);
+        var.isConstant = isConst;
         Variables.push_back(var);
         return;
     }
@@ -1121,7 +1137,7 @@ void ParseIf(std::string& code)
     string Bname = "";
     int start = 0, endF = 1;
     bool operatorSelected = false;
-    IFOperators finoperator;
+    IFOperators finoperator = IFOperators::None;
     int checkL = LineNum;
 
     for (size_t i = 0; i < code.length(); i++)
@@ -1139,6 +1155,8 @@ void ParseIf(std::string& code)
     {
         if (code[i] != ' ' && code[i] != '=' && code[i] != '!' && code[i] != '<' && code[i] != '>')
             Aname += code[i];
+        else
+            break;
     }
     for (size_t i = ifKeyWord.length() + Aname.length() + 2; code[i] != ' '; i++)
     {
@@ -1158,8 +1176,9 @@ void ParseIf(std::string& code)
             finoperator = IFOperators::LowerThan;
             operatorSelected = true;
         }
+
     }
-    for (size_t i = ifKeyWord.length() + Aname.length() + 1; i < code.length(); i++)
+    for (size_t i = ifKeyWord.length() + Aname.length() + 3; i < code.length(); i++)
     {
         if (code[i] != ' ' && code[i] != '=' && code[i] != '!' && code[i] != '<' && code[i] != '>')
             Bname += code[i];
@@ -1178,6 +1197,7 @@ void ParseIf(std::string& code)
             }
         }
         ccode = ccode.substr(startTrim, ScriptCode[i].length());
+        string endIfKeyWord = (endKeyWord + " if");
         if (ccode == endIfKeyWord.c_str())
         {
             endF = i;
@@ -1274,6 +1294,238 @@ void ParseIf(std::string& code)
     }
     else {
         return;
+    }
+}
+void ParseWhile(std::string& code)
+{
+    string valid = "";
+    string sm = "";
+    string Aname = "";
+    string Bname = "";
+    int start = 0, endF = 1;
+    bool operatorSelected = false;
+    IFOperators finoperator = IFOperators::None;
+    int checkL = LineNum;
+
+    for (size_t i = 0; i < code.length(); i++)
+    {
+        if (valid != whileKeyWord && code[i] != ' ' && code[i] != '\t')
+            valid += code[i];
+    }
+
+    if (valid != whileKeyWord)
+        return;
+    if (valid == whileKeyWord)
+        start = LineNum;
+
+    for (size_t i = whileKeyWord.length() + 1; code[i] != ' '; i++)
+    {
+        if (code[i] != ' ' && code[i] != '=' && code[i] != '!' && code[i] != '<' && code[i] != '>')
+            Aname += code[i];
+    }
+    for (size_t i = whileKeyWord.length() + Aname.length() + 2; code[i] != ' '; i++)
+    {
+        if (code[i] == '=' && code[i + 1] == '=' && !operatorSelected) {
+            finoperator = IFOperators::IsEqual;
+            operatorSelected = true;
+        }
+        if (code[i] == '!' && code[i + 1] == '=' && !operatorSelected) {
+            finoperator = IFOperators::IsntEqual;
+            operatorSelected = true;
+        }
+        if (code[i] == '>' && code[i + 1] == ' ' && !operatorSelected) {
+            finoperator = IFOperators::GreaterThan;
+            operatorSelected = true;
+        }
+        if (code[i] == '<' && code[i + 1] == ' ' && !operatorSelected) {
+            finoperator = IFOperators::LowerThan;
+            operatorSelected = true;
+        }
+    }
+    for (size_t i = whileKeyWord.length() + Aname.length() + 1; i < code.length(); i++)
+    {
+        if (code[i] != ' ' && code[i] != '=' && code[i] != '!' && code[i] != '<' && code[i] != '>')
+            Bname += code[i];
+    }
+    bool nTT = true;
+    for (size_t i = start + 1; i < ScriptCode.size(); i++)
+    {
+        nTT = true;
+        int startTrim = 0;
+        string ccode = ScriptCode[i];
+        for (size_t i = 0; nTT; i++)
+        {
+            if (ccode[i] != '\t') {
+                startTrim = i;
+                nTT = false;
+            }
+        }
+        ccode = ccode.substr(startTrim, ScriptCode[i].length());
+        string endIfKeyWord = (endKeyWord + " while");
+        if (ccode == endIfKeyWord.c_str())
+        {
+            endF = i;
+            LineNum = start + 1;
+            break;
+        }
+    }
+    bool needToParse = false;
+    Variable varA = FindVar(Aname);
+    Variable varB = FindVar(Bname);
+    bool needToTrim = true;
+    switch (finoperator)
+    {
+    case IFOperators::IsEqual:
+        if (varA.type == typeString && varB.type == typeString) {
+            if (varA.valueS == varB.valueS) {
+                needToParse = true;
+                break;
+            }
+        }
+        if (varA.type == typeNumber && varB.type == typeNumber) {
+            if (varA.valueI == varB.valueI) {
+                needToParse = true;
+                break;
+            }
+        }
+        if (varA.type == typeBool && varB.type == typeBool) {
+            if (varA.valueB == varB.valueB) {
+                needToParse = true;
+                break;
+            }
+        }
+        break;
+    case IFOperators::IsntEqual:
+        if (varA.type == typeString && varB.type == typeString) {
+            if (varA.valueS != varB.valueS) {
+                needToParse = true;
+                break;
+            }
+        }
+        if (varA.type == typeNumber && varB.type == typeNumber) {
+            if (varA.valueI != varB.valueI) {
+                needToParse = true;
+                break;
+            }
+        }
+        if (varA.type == typeBool && varB.type == typeBool) {
+            if (varA.valueB != varB.valueB) {
+                needToParse = true;
+                break;
+            }
+        }
+        break;
+    case IFOperators::GreaterThan:
+        if (varA.type == typeNumber && varB.type == typeNumber) {
+            if (varA.valueI > varB.valueI) {
+                needToParse = true;
+                break;
+            }
+        }
+        break;
+    case IFOperators::LowerThan:
+        if (varA.type == typeNumber && varB.type == typeNumber) {
+            if (varA.valueI < varB.valueI) {
+                needToParse = true;
+            }
+        }
+        break;
+    }
+
+    int preCodeLine = start + 1;
+
+    while (needToParse) {
+
+        switch (finoperator)
+        {
+        case IFOperators::IsEqual:
+            if (varA.type == typeString && varB.type == typeString) {
+                if (varA.valueS == varB.valueS) {
+                    needToParse = true;
+                    break;
+                }
+                else
+                    needToParse = false;
+            }
+            if (varA.type == typeNumber && varB.type == typeNumber) {
+                if (varA.valueI == varB.valueI) {
+                    needToParse = true;
+                    break;
+                }
+                else
+                    needToParse = false;
+            }
+            if (varA.type == typeBool && varB.type == typeBool) {
+                if (varA.valueB == varB.valueB) {
+                    needToParse = true;
+                    break;
+                }
+                else
+                    needToParse = false;
+            }
+            break;
+        case IFOperators::IsntEqual:
+            if (varA.type == typeString && varB.type == typeString) {
+                if (varA.valueS != varB.valueS) {
+                    needToParse = true;
+                    break;
+                }
+                else
+                    needToParse = false;
+            }
+            if (varA.type == typeNumber && varB.type == typeNumber) {
+                if (varA.valueI != varB.valueI) {
+                    needToParse = true;
+                    break;
+                }
+                else
+                    needToParse = false;
+            }
+            if (varA.type == typeBool && varB.type == typeBool) {
+                if (varA.valueB != varB.valueB) {
+                    needToParse = true;
+                    break;
+                }
+                else
+                    needToParse = false;
+            }
+            break;
+        case IFOperators::GreaterThan:
+            if (varA.type == typeNumber && varB.type == typeNumber) {
+                if (varA.valueI > varB.valueI) {
+                    needToParse = true;
+                    break;
+                }
+            }
+            else
+                needToParse = false;
+            break;
+        case IFOperators::LowerThan:
+            if (varA.type == typeNumber && varB.type == typeNumber) {
+                if (varA.valueI < varB.valueI) {
+                    needToParse = true;
+                }
+            }
+            break;
+        }
+
+        int startTrim = 0;
+        string ccode = ScriptCode[preCodeLine];
+        for (size_t i = 0; needToTrim; i++)
+        {
+            if (ccode[i] != '\t') {
+                startTrim = i;
+                needToTrim = false;
+            }
+        }
+        ccode = ccode.substr(startTrim, ccode.length());
+        ParseMV(ccode);
+        varA = FindVar(Aname);
+        varB = FindVar(Bname);
+        if (preCodeLine == endF)
+            preCodeLine = start + 1;
+        else
+            preCodeLine++;
     }
 }
 #pragma endregion

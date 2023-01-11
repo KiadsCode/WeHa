@@ -1,0 +1,4 @@
+Added while cycle 
+Removed start char of function 
+Added constants 
+Reworked " end " postfix for code blocks

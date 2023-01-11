@@ -15,6 +15,7 @@ namespace weha
     {
     public:
         int valueI;
+        bool isConstant = false;
         std::string name;
         std::string type;
         std::string valueS;
