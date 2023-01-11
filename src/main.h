@@ -14,24 +14,24 @@
 using namespace std;
 using namespace weha;
 
-const std::string lx = "WeHa Ver - 1.0.0\n\n"; // Lang Version
+const string lx = "WeHa Ver - 1.0.3\n\n"; // Lang Version
 
 void Parser(); // Main Parser
 
 // Other Parsers
-void ParseIf(std::string &code);
-void ParsePrint(std::string &code);
-void ParseImport(std::string &code);
-bool ParseModule(std::string &code);
-void ParseModuleSF(std::string &code);
-void ParseModuleNV(std::string &code);
-void ParseMP(std::string &code);
-void ParseMFS(std::string &code);
-void ParseStartFunc(std::string &code);
-void ParseM(std::string &Code);
-void ParseWhile(std::string& code);
-void ParseMV(std::string &Code);
-void ParseInput(std::string &code);
-bool ParseFunction(std::string &code);
-void ParseAssignVar(std::string &code);
-void ParseNewVariable(std::string &code);
+void ParseIf(string &code);
+void ParsePrint(string &code);
+void ParseImport(string &code);
+bool ParseModule(string &code);
+void ParseModuleSF(string &code);
+void ParseModuleNV(string &code);
+void ParseMP(string &code);
+void ParseMFS(string &code);
+void ParseStartFunc(string &code);
+void ParseM(string &Code);
+void ParseWhile(string& code);
+void ParseMV(string &Code);
+void ParseInput(string &code);
+bool ParseFunction(string &code);
+void ParseAssignVar(string &code);
+void ParseNewVariable(string &code);
