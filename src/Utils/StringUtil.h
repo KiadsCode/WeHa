@@ -6,7 +6,6 @@ using namespace std;
 
 namespace weha{
     class StringUtil
-    
     {
     private:
         /* data */
